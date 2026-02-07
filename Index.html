@@ -2,7 +2,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PASKIBRA SMAN 1 Bengkayang</title><!-- Firebase SDK --><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script><style>
+<title>PASKIBRA SMAN 1 Bengkayang</title><!-- Firebase SDK --><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js">function showPage(p){
+  appBox.classList.toggle('hidden',p!=='input');
+  dataBox.classList.toggle('hidden',p!=='data');
+}
+
+function loadData(){
+  const uid=auth.currentUser.uid;
+  const list=document.getElementById('listData');
+  list.innerHTML='';
+  db.ref('nilai/'+uid).once('value',snap=>{
+    snap.forEach(d=>{
+      const v=d.val();
+      list.innerHTML+=`<div style="background:#f2f6fb;padding:10px;border-radius:10px;margin-bottom:8px">
+        <b>${v.nama}</b><br>
+        Semester ${v.semester}<br>
+        Nilai: <b>${v.nilai}</b><br>
+        <small>${v.waktu}</small>
+      </div>`;
+    })
+  })
+}
+</script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script><style>
 body{margin:0;font-family:Segoe UI,Arial;background:linear-gradient(135deg,#1e3c72,#2a5298);color:#fff}
 .app{max-width:420px;margin:auto;min-height:100vh;padding:16px}
 .card{background:#fff;color:#333;border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 8px 20px rgba(0,0,0,.15)}
@@ -39,6 +60,13 @@ button:active{transform:scale(.98)}
 </div><input type="number" id="sikap" placeholder="Nilai Sikap">
 <button onclick="hitungDanSimpan()">Hitung & Simpan</button><div id="hasil"></div>
 <div class="score" id="nilaiBulat"></div>
+<!-- NAV BAR -->
+<div style="position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;box-shadow:0 -2px 10px rgba(0,0,0,.15)">
+  <button style="flex:1" onclick="showPage('input')">Input</button>
+  <button style="flex:1" onclick="showPage('data')">Data Tersimpan</button>
+</div><!-- DATA LIST --><div class="card hidden" id="dataBox">
+<h3>Data Nilai Tersimpan</h3>
+<div id="listData"></div>
 </div>
 </div><script>
 // Firebase Config
@@ -73,7 +101,9 @@ function login(){
 function logout(){auth.signOut()}
 
 auth.onAuthStateChanged(user=>{
-  if(user){loginBox.classList.add('hidden');registerBox.classList.add('hidden');appBox.classList.remove('hidden')}
+  if(user){loginBox.classList.add('hidden');registerBox.classList.add('hidden');appBox.classList.remove('hidden');loadData()}
+  else{appBox.classList.add('hidden');loginBox.classList.remove('hidden')}
+}){loginBox.classList.add('hidden');registerBox.classList.add('hidden');appBox.classList.remove('hidden')}
   else{appBox.classList.add('hidden');loginBox.classList.remove('hidden')}
 })
 
@@ -87,6 +117,17 @@ function hitungDanSimpan(){
   const bulat=pembulatan(akhir);
 
   hasil.innerHTML=`Nilai Akhir: ${akhir.toFixed(2)}`;
+  nilaiBulat.innerText=bulat;
+
+  const uid=auth.currentUser.uid;
+  db.ref('nilai/'+uid).push({
+    nama:nama.value,
+    semester:semester.value,
+    nilai:bulat,
+    waktu:new Date().toLocaleString()
+  }).then(loadData);
+}
+`;
   nilaiBulat.innerText=bulat;
 
   const uid=auth.currentUser.uid;
