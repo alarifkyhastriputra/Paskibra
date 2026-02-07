@@ -1,140 +1,101 @@
-<!DOCTYPE html>
-<html lang="id">
+<!DOCTYPE html><html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>PASKIBRA SMAN 1 Bengkayang</title>
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f4f6f8;
-    padding: 20px;
-}
-.container {
-    max-width: 600px;
-    background: white;
-    padding: 20px;
-    margin: auto;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-h1, h2 {
-    text-align: center;
-}
-label {
-    font-weight: bold;
-}
-input, select, button {
-    width: 100%;
-    padding: 8px;
-    margin: 6px 0 12px 0;
-}
-button {
-    background: #1e88e5;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-button:hover {
-    background: #1565c0;
-}
-.result {
-    background: #eef3f7;
-    padding: 15px;
-    border-radius: 8px;
-}
-.hidden {
-    display: none;
-}
-</style>
-</head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PASKIBRA SMAN 1 Bengkayang</title><!-- Firebase SDK --><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script><style>
+body{margin:0;font-family:Segoe UI,Arial;background:linear-gradient(135deg,#1e3c72,#2a5298);color:#fff}
+.app{max-width:420px;margin:auto;min-height:100vh;padding:16px}
+.card{background:#fff;color:#333;border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 8px 20px rgba(0,0,0,.15)}
+h1{text-align:center;font-size:18px}
+input,select,button{width:100%;padding:12px;border-radius:12px;border:1px solid #ccc;margin:8px 0}
+button{background:#1e88e5;color:#fff;font-weight:bold;border:none}
+button:active{transform:scale(.98)}
+.hidden{display:none}
+.score{text-align:center;font-size:32px;font-weight:bold;color:#1e88e5}
+</style></head>
 <body>
+<div class="app">
+<h1>PASKIBRA<br>SMAN 1 BENGKAYANG</h1><!-- LOGIN --><div class="card" id="loginBox">
+<h3>Login</h3>
+<input type="email" id="loginEmail" placeholder="Email">
+<input type="password" id="loginPassword" placeholder="Password">
+<button onclick="login()">Login</button>
+<p onclick="showRegister()" style="text-align:center;color:#1e88e5">Belum punya akun? Daftar</p>
+</div><!-- REGISTER --><div class="card hidden" id="registerBox">
+<h3>Register</h3>
+<input type="email" id="regEmail" placeholder="Email">
+<input type="password" id="regPassword" placeholder="Password">
+<button onclick="register()">Daftar</button>
+<p onclick="showLogin()" style="text-align:center;color:#1e88e5">Sudah punya akun? Login</p>
+</div><!-- APP --><div class="card hidden" id="appBox">
+<button onclick="logout()">Logout</button><label>Semester</label> <select id="semester" onchange="toggleSemester()">
 
-<div class="container">
-    <h1>PASKIBRA<br>SMA NEGERI 1 BENGKAYANG</h1>
-    <h2>Perhitungan Nilai Ekstrakurikuler</h2>
-
-    <label>Semester</label>
-    <select id="semester" onchange="toggleSemester()">
-        <option value="1">Semester 1 (X, XI, XII)</option>
-        <option value="2">Semester 2 (X & XI)</option>
-    </select>
-
-    <label>Nama Siswa</label>
-    <input type="text" id="nama" placeholder="Contoh: Samuel">
-
-    <label>Jumlah Hadir</label>
-    <input type="number" id="hadir" placeholder="Contoh: 12">
-
-    <label>Total Pertemuan</label>
-    <input type="number" id="total" placeholder="Contoh: 12">
-
-    <div id="pembayatanBox" class="hidden">
-        <label>Nilai Pembayatan</label>
-        <input type="number" id="pembayatan" placeholder="0 - 100">
-    </div>
-
-    <label>Nilai Sikap</label>
-    <input type="number" id="sikap" placeholder="0 - 100">
-
-    <button onclick="hitung()">Hitung Nilai</button>
-
-    <div class="result" id="hasil"></div>
+<option value="1">Semester 1</option>
+<option value="2">Semester 2</option>
+</select><input type="text" id="nama" placeholder="Nama Siswa">
+<input type="number" id="hadir" placeholder="Hadir">
+<input type="number" id="total" placeholder="Total Pertemuan"><div id="pembayatanBox" class="hidden">
+<input type="number" id="pembayatan" placeholder="Nilai Pembayatan">
+</div><input type="number" id="sikap" placeholder="Nilai Sikap">
+<button onclick="hitungDanSimpan()">Hitung & Simpan</button><div id="hasil"></div>
+<div class="score" id="nilaiBulat"></div>
 </div>
+</div><script>
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyAgOPD5DDtjExQaVeu6VLFI7CMP9i8VOQw",
+  authDomain: "projectchat01-d16bc.firebaseapp.com",
+  databaseURL: "https://projectchat01-d16bc-default-rtdb.firebaseio.com",
+  projectId: "projectchat01-d16bc",
+  storageBucket: "projectchat01-d16bc.appspot.com",
+  messagingSenderId: "163313653543",
+  appId: "1:163313653543:web:8bf5627ebe6a92ff11bb02"
+};
 
-<script>
-function toggleSemester() {
-    const semester = document.getElementById("semester").value;
-    const box = document.getElementById("pembayatanBox");
-    box.classList.toggle("hidden", semester === "1");
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+function showRegister(){loginBox.classList.add('hidden');registerBox.classList.remove('hidden')}
+function showLogin(){registerBox.classList.add('hidden');loginBox.classList.remove('hidden')}
+
+function register(){
+  auth.createUserWithEmailAndPassword(regEmail.value, regPassword.value)
+  .then(()=>alert('Register berhasil'))
+  .catch(e=>alert(e.message));
 }
 
-function pembulatan(nilai) {
-    const desimal = nilai - Math.floor(nilai);
-    return desimal >= 0.5 ? Math.ceil(nilai) : Math.floor(nilai);
+function login(){
+  auth.signInWithEmailAndPassword(loginEmail.value, loginPassword.value)
+  .catch(e=>alert(e.message));
 }
 
-function hitung() {
-    const semester = document.getElementById("semester").value;
-    const nama = document.getElementById("nama").value || "Siswa";
-    const hadir = parseFloat(document.getElementById("hadir").value);
-    const total = parseFloat(document.getElementById("total").value);
-    const sikap = parseFloat(document.getElementById("sikap").value);
-    const pembayatan = parseFloat(document.getElementById("pembayatan").value || 0);
+function logout(){auth.signOut()}
 
-    let nilaiAbsen = (hadir / total) * 100;
-    let nilaiAkhir = 0;
-    let detail = "";
+auth.onAuthStateChanged(user=>{
+  if(user){loginBox.classList.add('hidden');registerBox.classList.add('hidden');appBox.classList.remove('hidden')}
+  else{appBox.classList.add('hidden');loginBox.classList.remove('hidden')}
+})
 
-    if (semester === "1") {
-        nilaiAkhir = (nilaiAbsen * 0.6) + (sikap * 0.4);
-        detail = `
-        60% Absen: ${(nilaiAbsen * 0.6).toFixed(2)}<br>
-        40% Sikap: ${(sikap * 0.4).toFixed(2)}
-        `;
-    } else {
-        nilaiAkhir =
-            (nilaiAbsen * 0.5) +
-            (pembayatan * 0.35) +
-            (sikap * 0.15);
+function toggleSemester(){pembayatanBox.classList.toggle('hidden',semester.value==='1')}
+function pembulatan(n){return n%1>=0.5?Math.ceil(n):Math.floor(n)}
 
-        detail = `
-        50% Absen: ${(nilaiAbsen * 0.5).toFixed(2)}<br>
-        35% Pembayatan: ${(pembayatan * 0.35).toFixed(2)}<br>
-        15% Sikap: ${(sikap * 0.15).toFixed(2)}
-        `;
-    }
+function hitungDanSimpan(){
+  const hadirVal=hadir.value,totalVal=total.value,sikapVal=sikap.value,pemb=pembayatan.value||0;
+  const absen=(hadirVal/totalVal)*100;
+  let akhir=semester.value==='1'?(absen*.6+sikapVal*.4):(absen*.5+pemb*.35+sikapVal*.15);
+  const bulat=pembulatan(akhir);
 
-    const nilaiBulat = pembulatan(nilaiAkhir);
+  hasil.innerHTML=`Nilai Akhir: ${akhir.toFixed(2)}`;
+  nilaiBulat.innerText=bulat;
 
-    document.getElementById("hasil").innerHTML = `
-        <b>Nama:</b> ${nama}<br><br>
-        ${detail}<br><br>
-        <b>Nilai Akhir:</b> ${nilaiAkhir.toFixed(2)}<br>
-        <b>Nilai Rekap:</b> <span style="font-size:20px;">${nilaiBulat}</span>
-    `;
+  const uid=auth.currentUser.uid;
+  db.ref('nilai/'+uid).push({
+    nama:nama.value,
+    semester:semester.value,
+    nilai:bulat,
+    timestamp:Date.now()
+  });
 }
-</script>
-
-</body>
+</script></body>
 </html>
