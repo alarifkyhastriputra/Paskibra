@@ -1,75 +1,137 @@
-<!DOCTYPE html><html lang="id">
+<!DOCTYPE html>
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PASKIBRA SMAN 1 Bengkayang</title><!-- Firebase SDK --><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js">function showPage(p){
-  appBox.classList.toggle('hidden',p!=='input');
-  dataBox.classList.toggle('hidden',p!=='data');
-}
+<title>PASKIBRA SMAN 1 Bengkayang</title>
 
-function loadData(){
-  const uid=auth.currentUser.uid;
-  const list=document.getElementById('listData');
-  list.innerHTML='';
-  db.ref('nilai/'+uid).once('value',snap=>{
-    snap.forEach(d=>{
-      const v=d.val();
-      list.innerHTML+=`<div style="background:#f2f6fb;padding:10px;border-radius:10px;margin-bottom:8px">
-        <b>${v.nama}</b><br>
-        Semester ${v.semester}<br>
-        Nilai: <b>${v.nilai}</b><br>
-        <small>${v.waktu}</small>
-      </div>`;
-    })
-  })
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI,Arial;
+  background:linear-gradient(135deg,#1e3c72,#2a5298);
+  color:#fff;
 }
-</script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script><style>
-body{margin:0;font-family:Segoe UI,Arial;background:linear-gradient(135deg,#1e3c72,#2a5298);color:#fff}
-.app{max-width:420px;margin:auto;min-height:100vh;padding:16px}
-.card{background:#fff;color:#333;border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 8px 20px rgba(0,0,0,.15)}
+.app{
+  max-width:420px;
+  margin:auto;
+  min-height:100vh;
+  padding:16px 16px 80px;
+}
+.card{
+  background:#fff;
+  color:#333;
+  border-radius:16px;
+  padding:16px;
+  margin-bottom:16px;
+  box-shadow:0 8px 20px rgba(0,0,0,.15);
+}
 h1{text-align:center;font-size:18px}
-input,select,button{width:100%;padding:12px;border-radius:12px;border:1px solid #ccc;margin:8px 0}
-button{background:#1e88e5;color:#fff;font-weight:bold;border:none}
-button:active{transform:scale(.98)}
+input,select,button{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #ccc;
+  margin:8px 0;
+  font-size:14px;
+}
+button{
+  background:#1e88e5;
+  color:#fff;
+  font-weight:bold;
+  border:none;
+}
+button:active{transform:scale(.97)}
 .hidden{display:none}
-.score{text-align:center;font-size:32px;font-weight:bold;color:#1e88e5}
-</style></head>
+.score{
+  text-align:center;
+  font-size:32px;
+  font-weight:bold;
+  color:#1e88e5;
+}
+.nav{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  background:#fff;
+  display:flex;
+  box-shadow:0 -2px 10px rgba(0,0,0,.15);
+  z-index:999;
+}
+.nav button{
+  flex:1;
+  border-radius:0;
+  background:#fff;
+  color:#1e88e5;
+}
+</style>
+</head>
 <body>
-<div class="app">
-<h1>PASKIBRA<br>SMAN 1 BENGKAYANG</h1><!-- LOGIN --><div class="card" id="loginBox">
-<h3>Login</h3>
-<input type="email" id="loginEmail" placeholder="Email">
-<input type="password" id="loginPassword" placeholder="Password">
-<button onclick="login()">Login</button>
-<p onclick="showRegister()" style="text-align:center;color:#1e88e5">Belum punya akun? Daftar</p>
-</div><!-- REGISTER --><div class="card hidden" id="registerBox">
-<h3>Register</h3>
-<input type="email" id="regEmail" placeholder="Email">
-<input type="password" id="regPassword" placeholder="Password">
-<button onclick="register()">Daftar</button>
-<p onclick="showLogin()" style="text-align:center;color:#1e88e5">Sudah punya akun? Login</p>
-</div><!-- APP --><div class="card hidden" id="appBox">
-<button onclick="logout()">Logout</button><label>Semester</label> <select id="semester" onchange="toggleSemester()">
 
-<option value="1">Semester 1</option>
-<option value="2">Semester 2</option>
-</select><input type="text" id="nama" placeholder="Nama Siswa">
-<input type="number" id="hadir" placeholder="Hadir">
-<input type="number" id="total" placeholder="Total Pertemuan"><div id="pembayatanBox" class="hidden">
-<input type="number" id="pembayatan" placeholder="Nilai Pembayatan">
-</div><input type="number" id="sikap" placeholder="Nilai Sikap">
-<button onclick="hitungDanSimpan()">Hitung & Simpan</button><div id="hasil"></div>
-<div class="score" id="nilaiBulat"></div>
-<!-- NAV BAR -->
-<div style="position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;box-shadow:0 -2px 10px rgba(0,0,0,.15)">
-  <button style="flex:1" onclick="showPage('input')">Input</button>
-  <button style="flex:1" onclick="showPage('data')">Data Tersimpan</button>
-</div><!-- DATA LIST --><div class="card hidden" id="dataBox">
-<h3>Data Nilai Tersimpan</h3>
-<div id="listData"></div>
+<div class="app">
+<h1>PASKIBRA<br>SMA NEGERI 1 BENGKAYANG</h1>
+
+<!-- LOGIN -->
+<div class="card" id="loginBox">
+  <h3>Login</h3>
+  <input type="email" id="loginEmail" placeholder="Email">
+  <input type="password" id="loginPassword" placeholder="Password">
+  <button type="button" onclick="login()">Login</button>
+  <p style="text-align:center;color:#1e88e5" onclick="showRegister()">Belum punya akun? Daftar</p>
 </div>
-</div><script>
-// Firebase Config
+
+<!-- REGISTER -->
+<div class="card hidden" id="registerBox">
+  <h3>Register</h3>
+  <input type="email" id="regEmail" placeholder="Email">
+  <input type="password" id="regPassword" placeholder="Password">
+  <button type="button" onclick="register()">Daftar</button>
+  <p style="text-align:center;color:#1e88e5" onclick="showLogin()">Sudah punya akun? Login</p>
+</div>
+
+<!-- INPUT -->
+<div class="card hidden" id="appBox">
+  <button type="button" onclick="logout()">Logout</button>
+
+  <select id="semester" onchange="toggleSemester()">
+    <option value="1">Semester 1</option>
+    <option value="2">Semester 2</option>
+  </select>
+
+  <input type="text" id="nama" placeholder="Nama Siswa">
+  <input type="number" id="hadir" placeholder="Jumlah Hadir">
+  <input type="number" id="total" placeholder="Total Pertemuan">
+
+  <div id="pembayatanBox" class="hidden">
+    <input type="number" id="pembayatan" placeholder="Nilai Pembayatan">
+  </div>
+
+  <input type="number" id="sikap" placeholder="Nilai Sikap">
+  <button type="button" onclick="hitungDanSimpan()">Hitung & Simpan</button>
+
+  <div id="hasil"></div>
+  <div class="score" id="nilaiBulat"></div>
+</div>
+
+<!-- DATA -->
+<div class="card hidden" id="dataBox">
+  <h3>Data Tersimpan</h3>
+  <div id="listData"></div>
+</div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button type="button" onclick="showPage('input')">Input</button>
+  <button type="button" onclick="showPage('data')">Data</button>
+</div>
+
+<script>
+// FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyAgOPD5DDtjExQaVeu6VLFI7CMP9i8VOQw",
   authDomain: "projectchat01-d16bc.firebaseapp.com",
@@ -84,12 +146,24 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-function showRegister(){loginBox.classList.add('hidden');registerBox.classList.remove('hidden')}
-function showLogin(){registerBox.classList.add('hidden');loginBox.classList.remove('hidden')}
+// ELEMENTS
+const loginBox = document.getElementById('loginBox');
+const registerBox = document.getElementById('registerBox');
+const appBox = document.getElementById('appBox');
+const dataBox = document.getElementById('dataBox');
+
+function showRegister(){
+  loginBox.classList.add('hidden');
+  registerBox.classList.remove('hidden');
+}
+function showLogin(){
+  registerBox.classList.add('hidden');
+  loginBox.classList.remove('hidden');
+}
 
 function register(){
   auth.createUserWithEmailAndPassword(regEmail.value, regPassword.value)
-  .then(()=>alert('Register berhasil'))
+  .then(()=>alert("Register berhasil, silakan login"))
   .catch(e=>alert(e.message));
 }
 
@@ -98,45 +172,69 @@ function login(){
   .catch(e=>alert(e.message));
 }
 
-function logout(){auth.signOut()}
+function logout(){
+  auth.signOut();
+}
 
 auth.onAuthStateChanged(user=>{
-  if(user){loginBox.classList.add('hidden');registerBox.classList.add('hidden');appBox.classList.remove('hidden');loadData()}
-  else{appBox.classList.add('hidden');loginBox.classList.remove('hidden')}
-}){loginBox.classList.add('hidden');registerBox.classList.add('hidden');appBox.classList.remove('hidden')}
-  else{appBox.classList.add('hidden');loginBox.classList.remove('hidden')}
-})
+  if(user){
+    loginBox.classList.add('hidden');
+    registerBox.classList.add('hidden');
+    appBox.classList.remove('hidden');
+    loadData();
+  }else{
+    appBox.classList.add('hidden');
+    dataBox.classList.add('hidden');
+    loginBox.classList.remove('hidden');
+  }
+});
 
-function toggleSemester(){pembayatanBox.classList.toggle('hidden',semester.value==='1')}
-function pembulatan(n){return n%1>=0.5?Math.ceil(n):Math.floor(n)}
+function toggleSemester(){
+  pembayatanBox.classList.toggle('hidden', semester.value==="1");
+}
+function pembulatan(n){
+  return n%1>=0.5?Math.ceil(n):Math.floor(n);
+}
 
 function hitungDanSimpan(){
-  const hadirVal=hadir.value,totalVal=total.value,sikapVal=sikap.value,pemb=pembayatan.value||0;
-  const absen=(hadirVal/totalVal)*100;
-  let akhir=semester.value==='1'?(absen*.6+sikapVal*.4):(absen*.5+pemb*.35+sikapVal*.15);
-  const bulat=pembulatan(akhir);
+  const absen = (hadir.value/total.value)*100;
+  let akhir = semester.value==="1"
+    ? (absen*0.6 + sikap.value*0.4)
+    : (absen*0.5 + pembayatan.value*0.35 + sikap.value*0.15);
 
-  hasil.innerHTML=`Nilai Akhir: ${akhir.toFixed(2)}`;
-  nilaiBulat.innerText=bulat;
+  const bulat = pembulatan(akhir);
+  hasil.innerHTML = "Nilai Akhir: "+akhir.toFixed(2);
+  nilaiBulat.innerText = bulat;
 
-  const uid=auth.currentUser.uid;
-  db.ref('nilai/'+uid).push({
+  db.ref("nilai/"+auth.currentUser.uid).push({
     nama:nama.value,
     semester:semester.value,
     nilai:bulat,
     waktu:new Date().toLocaleString()
   }).then(loadData);
 }
-`;
-  nilaiBulat.innerText=bulat;
 
-  const uid=auth.currentUser.uid;
-  db.ref('nilai/'+uid).push({
-    nama:nama.value,
-    semester:semester.value,
-    nilai:bulat,
-    timestamp:Date.now()
+function showPage(p){
+  appBox.classList.toggle('hidden',p!=="input");
+  dataBox.classList.toggle('hidden',p!=="data");
+}
+
+function loadData(){
+  const list = document.getElementById("listData");
+  list.innerHTML="";
+  db.ref("nilai/"+auth.currentUser.uid).once("value",snap=>{
+    snap.forEach(d=>{
+      const v=d.val();
+      list.innerHTML+=`
+      <div style="background:#f2f6fb;padding:10px;border-radius:10px;margin-bottom:8px">
+        <b>${v.nama}</b><br>
+        Semester ${v.semester}<br>
+        Nilai: <b>${v.nilai}</b><br>
+        <small>${v.waktu}</small>
+      </div>`;
+    });
   });
 }
-</script></body>
+</script>
+</body>
 </html>
